@@ -1,0 +1,59 @@
+llm:
+  provider: openai            # openai | anthropic
+  model: gpt-4o
+  temperature: 0.7
+  max_tokens: 4096
+
+agent:
+  max_iterations: 10
+  early_stop_confidence: 0.85
+  strategy: single             # single | multi (future)
+
+tools:
+  esm2:
+    model_name: facebook/esm2_t33_650M_UR50D
+    device: cuda
+    batch_size: 32
+  properties:
+    models:
+      - hemolysis
+      - solubility
+      - toxicity
+      - permeability
+      - stability
+    ensemble_size: 3
+  docking:
+    vina_executable: /usr/local/bin/vina
+    exhaustiveness: 8
+    num_modes: 5
+  esmfold:
+    enabled: true
+    device: cuda
+  generator:
+    method: llm_guided         # llm_guided | sampling
+    max_length: 50
+    min_length: 5
+
+reliability:
+  ood:
+    method: mahalanobis        # mahalanobis | knn
+    threshold: 0.95
+    k_neighbors: 10
+  calibration:
+    method: isotonic           # isotonic | temperature_scaling
+  ensemble:
+    min_models: 2
+    disagreement_threshold: 0.3
+
+evaluation:
+  datasets:
+    - dbaasp_amp
+    - satpdb
+  baselines:
+    - random_filter
+    - single_shot
+  metrics:
+    - hit_rate
+    - diversity
+    - novelty
+    - reliability_auroc
